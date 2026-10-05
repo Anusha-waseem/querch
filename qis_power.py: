@@ -1,0 +1,34 @@
+import socket, time
+from quarchpy.qis import isQisRunning, startLocalQis
+
+if not isQisRunning():
+    startLocalQis(); time.sleep(8)
+
+s = socket.create_connection(("127.0.0.1", 9722), timeout=10)
+time.sleep(1)
+
+def cmd(c, wait=1.5):
+    s.sendall((c + "\r\n").encode())
+    time.sleep(wait)
+    try:
+        return s.recv(65536).decode(errors="replace").strip()
+    except Exception as e:
+        return f"(no reply: {e})"
+
+DEV = "USB::QTL2843-03-023"
+
+# select the device for subsequent commands
+print("CONN:", cmd(f"$default {DEV}"))
+
+for c in ["*IDN?",
+          "rec stream?",
+          "stream?",
+          "meas:power?",
+          "meas:volt?",
+          "meas:current?",
+          "conf:channels?",
+          "help measure"]:
+    print(f"--- {c}\n{cmd(c)}")
+
+s.close()
+

@@ -1,0 +1,18 @@
+import time
+from quarchpy.device import scanDevices
+from quarchpy.qis import isQisRunning, startLocalQis
+
+if not isQisRunning():
+    print("starting QIS...")
+    startLocalQis()
+    time.sleep(8)
+
+print("QIS running:", isQisRunning())
+
+for i in range(5):
+    d = scanDevices('QIS')
+    print(i, d)
+    if d:
+        break
+    time.sleep(3)
+
